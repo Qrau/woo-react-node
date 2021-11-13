@@ -1,185 +1,137 @@
-import { credentials } from "../credentials";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
-import {
-  setUsername,
-  setPassword,
-  setUserId,
-  setDisplayName,
-  setUserEmail,
-  setUserLink,
-  setLoading,
-  setLoginSuccess,
-  setToken,
-  setError,
-  setIsLoggedIn,
-  setUserOrders,
-} from "../redux/actions/";
 import { LoginForm } from "../components/user/login-form";
 import { UserCard } from "../components/user/user-card";
 import { LoginOutButton } from "../components/user/login-out-button";
 import { Container } from "../elements";
-import { useEffect } from "react";
-import getSuperToken from "../functions/get-super-token";
-import axios from "axios";
-import React from "react";
+import { credentials } from "../credentials";
+import GetWooOrders from "../functions/get-woo-orders";
+import PostUserLogin from "../functions/post-user-login";
+import GetWooUserId from "../functions/get-woo-user-id";
+import UseLocalStorage from "../functions/use-local-storage";
 
-const User = ({
-  username,
-  password,
-  userId,
-  displayName,
-  userEmail,
-  userLink,
-  loading,
-  loginSuccess,
-  token,
-  error,
-  isLoggedIn,
-  setUsername,
-  setPassword,
-  setUserId,
-  setDisplayName,
-  setUserEmail,
-  setUserLink,
-  setLoading,
-  setLoginSuccess,
-  setToken,
-  setError,
-  setIsLoggedIn,
-  userOrders,
-  setUserOrders,
-}) => {
-  const { baseUrl } = credentials;
-  const urls = {
-    tokenUrl: `${baseUrl}/wp-json/jwt-auth/v1/token`,
-    userIdUrl: `${baseUrl}/wp-json/wp/v2/users/me`,
-    ordersUrl: `${baseUrl}/wp-json/wc/v2/orders?customer=`,
-  };
-  const { tokenUrl, userIdUrl, ordersUrl } = urls;
-  const superToken = getSuperToken();
+const User = () => {
+  //↘——————————————————————————————————————↙
+  // user login call for token with JWT
+  const [userLoginCall, setUserLoginCall] = useState({
+    call: false,
+    loading: false,
+    error: "",
+    data: "",
+    success: false,
+    username: "",
+    password: "",
+  });
+  const tokenUrl = `${credentials.baseUrl}/wp-json/jwt-auth/v1/token`;
+  PostUserLogin(tokenUrl, userLoginCall, setUserLoginCall);
   const HandleLogin = () => {
-    setLoading(true);
-    axios({
-      method: "POST",
-      url: tokenUrl,
-      data: { username, password },
-    })
-      .then((resp) => {
-        if (resp.status === 200) {
-          setToken(resp.data.token);
-          setDisplayName(resp.data.user_display_name);
-          setUserEmail(resp.data.user_email);
-          setLoginSuccess(true);
-        }
-      })
-      .catch((err) => setError(err));
+    setUserLoginCall((userLoginCall) => ({
+      ...userLoginCall,
+      call: true,
+    }));
   };
+  const [storeUserLogin, setStoreUserLogin] = UseLocalStorage(
+    "userLoginCall",
+    ""
+  );
+  useEffect(() => {
+    if (userLoginCall.success) {
+      setStoreUserLogin(JSON.stringify(userLoginCall));
+      // JSON.parse(storeUserLogin).data;
+    }
+  }, [userLoginCall.success]);
 
-  const getAllUserData = () => {
-    axios
-      .get(userIdUrl, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((resp) => {
-        if (resp.status === 200) {
-          setUserId(resp.data.id);
-          setUserLink(resp.data.link);
-        }
-      })
-      .catch((err) => setError(err));
-  };
-
-  const getAllOrders = () => {
-    axios
-      .get(`${ordersUrl}${userId}`, {
-        headers: {
-          Authorization: `Bearer ${superToken}`,
-        },
-      })
-      .then((resp) => {
-        if (resp.status === 200) {
-          setUserOrders(resp.data);
-        }
-      })
-      .catch((err) => setError(err));
+  // user login call for token with JWT
+  //↗—————————————————END——————————————————↖
+  //
+  //
+  //
+  //↘——————————————————————————————————————↙
+  // user login call getting id
+  const [userIdCall, setUserIdCall] = useState({
+    call: false,
+    loading: false,
+    userId: "",
+    userLink: "",
+    success: false,
+  });
+  const { userId } = userIdCall;
+  const { user_display_name, token } = userLoginCall.data;
+  const userIdUrl = `${credentials.baseUrl}/wp-json/wp/v2/users/me`;
+  GetWooUserId(userIdUrl, token, userIdCall, setUserIdCall);
+  const getUserId = () => {
+    setUserIdCall((userIdCall) => ({
+      ...userIdCall,
+      call: true,
+    }));
   };
   useEffect(() => {
-    if (isLoggedIn) {
-      getAllOrders();
+    if (token) {
+      getUserId();
     }
-  }, [isLoggedIn]);
-
-  useEffect(() => {
-    if (error) {
-      setLoading(false);
-    }
-  }, [error]);
-
+  }, [token]);
+  // user login call getting id
+  //↗—————————————————END——————————————————↖
+  //
+  //
+  //
+  //↘——————————————————————————————————————↙
+  // get logged in user orders
+  const [ordersCall, setOrdersCall] = useState({
+    orders: [],
+    loading: false,
+    error: "",
+    success: false,
+  });
+  const { orders } = ordersCall;
+  const ordersUrl = "https://app.alepposhop.eu/api/orders";
+  GetWooOrders(ordersUrl, userId, setOrdersCall);
+  // get logged in user orders
+  //↗—————————————————END——————————————————↖
+  //
+  //
+  //
+  //↘——————————————————————————————————————↙
+  // clear states and log user out
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setLoginSuccess(false);
-    setToken("");
-    setPassword("");
-    setUserEmail("");
-    setUserId(null);
-    setLoading(false);
+    setStoreUserLogin("");
+    setUserLoginCall({
+      call: false,
+      loading: false,
+      token: "",
+      error: "",
+      data: "",
+      success: false,
+      username: "",
+      password: "",
+    });
+    setUserIdCall({
+      call: false,
+      loading: false,
+      userId: "",
+      userLink: "",
+      success: false,
+    });
   };
-
-  useEffect(() => {
-    if (loginSuccess) {
-      getAllUserData();
-      setIsLoggedIn(true);
-      setLoading(false);
-      setError("");
-    }
-    return () => {};
-  }, [loginSuccess]);
-
+  // clear states and log user out
+  //↗—————————————————END——————————————————↖
   return (
     <Container>
-      {isLoggedIn ? (
-        <UserCard displayName={displayName} userOrders={userOrders} />
+      {token ? (
+        <UserCard displayName={user_display_name} userOrders={orders} />
       ) : (
-        <LoginForm setUsername={setUsername} setPassword={setPassword} />
+        <LoginForm setUserLoginCall={setUserLoginCall} />
       )}
       <LoginOutButton
-        onClick={() => (isLoggedIn ? handleLogout() : HandleLogin())}
-        isLoggedIn={isLoggedIn}
+        onClick={() => (token ? handleLogout() : HandleLogin())}
+        isLoggedIn={token}
       />
     </Container>
   );
 };
 
-const mapStateToProps = (state) => ({
-  username: state.username,
-  password: state.password,
-  userId: state.userId,
-  displayName: state.displayName,
-  userEmail: state.userEmail,
-  userLink: state.userLink,
-  loading: state.loading,
-  loginSuccess: state.loginSuccess,
-  token: state.token,
-  error: state.error,
-  isLoggedIn: state.isLoggedIn,
-  userOrders: state.userOrders,
-});
+const mapStateToProps = (state) => ({});
 
-const mapDispatchToProps = {
-  setUsername,
-  setPassword,
-  setUserId,
-  setDisplayName,
-  setUserEmail,
-  setUserLink,
-  setLoading,
-  setLoginSuccess,
-  setToken,
-  setError,
-  setIsLoggedIn,
-  setUserOrders,
-};
+const mapDispatchToProps = {};
 
 export default connect(mapStateToProps, mapDispatchToProps)(User);

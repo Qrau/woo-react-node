@@ -7,22 +7,9 @@ import {
   setCategoryId,
   setUpdatedCart,
   setSingleProduct,
-  setProductName
+  setProductName,
 } from "./shop.actions";
-import {
-  setUsername,
-  setPassword,
-  setUserId,
-  setDisplayName,
-  setUserEmail,
-  setUserLink,
-  setLoading,
-  setLoginSuccess,
-  setToken,
-  setError,
-  setIsLoggedIn,
-  setUserOrders
-} from "./user.actions";
+import { setToken } from "./user.actions";
 
 //
 //
@@ -31,19 +18,8 @@ import {
 //
 // combine all actions
 export {
-  setUsername,
-  setPassword,
-  setUserId,
-  setDisplayName,
-  setUserEmail,
-  setUserLink,
-  setLoading,
-  setLoginSuccess,
   setToken,
-  setError,
   setNavState,
-  setIsLoggedIn,
-  setUserOrders,
   setUpdatedProducts,
   setCategories,
   setCartItems,
@@ -51,5 +27,5 @@ export {
   setCategoryId,
   setUpdatedCart,
   setSingleProduct,
-  setProductName
+  setProductName,
 };

@@ -15,7 +15,6 @@ const Cart = ({
   setSingleProduct,
   setProductName,
 }) => {
-  console.log(updatedCart);
   return (
     <Container>
       <ShoppingCart

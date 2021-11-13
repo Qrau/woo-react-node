@@ -1,20 +1,16 @@
 import axios from "axios";
 import { useEffect } from "react";
-import GetSuperToken from "./get-super-token";
-import { credentials } from "../credentials";
 
-const GetWooProducts = (param, productsCall, setProductsCall) => {
-  const { baseUrl } = credentials;
-  const url = `${baseUrl}/wp-json/wc/v3/${param}`;
-  const token = GetSuperToken();
+const GetWooProducts = (url, productsCall, setProductsCall, page, category) => {
   const { reset, products } = productsCall;
   useEffect(() => {
     setProductsCall((productsCall) => ({ ...productsCall, loading: true }));
-    if (token && !reset) {
+    if (!reset) {
       axios
         .get(url, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            page: page,
+            category: category,
           },
         })
         .then((resp) => {
@@ -41,9 +37,10 @@ const GetWooProducts = (param, productsCall, setProductsCall) => {
           }))
         );
     }
-  }, [token, url]);
+  }, [page]);
+
   useEffect(() => {
-    if (token && reset) {
+    if (reset) {
       setProductsCall((productsCall) => ({
         ...productsCall,
         products: [],
@@ -51,7 +48,8 @@ const GetWooProducts = (param, productsCall, setProductsCall) => {
       axios
         .get(url, {
           headers: {
-            Authorization: `Bearer ${token}`,
+            page: page,
+            category: category,
           },
         })
         .then((resp) => {
@@ -74,7 +72,6 @@ const GetWooProducts = (param, productsCall, setProductsCall) => {
         );
     }
   }, [reset]);
-  return productsCall;
 };
 
 export default GetWooProducts;

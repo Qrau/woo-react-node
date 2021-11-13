@@ -23,6 +23,7 @@ const Navigation = ({ navState, setNavState, updatedCart, cartItems }) => {
       path: "/cart",
     },
   ];
+
   return (
     <NavContainerStyled>
       {navElements.map((e, i) => {

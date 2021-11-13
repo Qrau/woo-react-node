@@ -2,7 +2,6 @@ import { Wrapper } from "../../elements";
 import React from "react";
 
 export const UserCard = ({ displayName, userOrders }) => {
-  console.log(userOrders);
   return (
     <Wrapper>
       Hello {displayName}! here you can view your orders

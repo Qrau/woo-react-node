@@ -8,22 +8,9 @@ import {
   categoryId,
   updatedCart,
   singleProduct,
-  productName
+  productName,
 } from "./shop.reducers";
-import {
-  username,
-  password,
-  userId,
-  displayName,
-  userEmail,
-  userLink,
-  loading,
-  loginSuccess,
-  token,
-  error,
-  isLoggedIn,
-  userOrders
-} from "./user.reducers";
+import { token } from "./user.reducers";
 
 //
 //
@@ -32,19 +19,8 @@ import {
 //
 // combine all reducers
 export const reducers = combineReducers({
-  username,
-  password,
-  userId,
-  displayName,
-  userEmail,
-  userLink,
-  loading,
-  loginSuccess,
   token,
-  error,
   navState,
-  isLoggedIn,
-  userOrders,
   updatedProducts,
   cartItems,
   categories,
@@ -52,5 +28,5 @@ export const reducers = combineReducers({
   categoryId,
   updatedCart,
   singleProduct,
-  productName
+  productName,
 });

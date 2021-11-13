@@ -4,7 +4,6 @@ import { CategoriesCard } from "../components/shop/categories-card";
 import { ProductsCard } from "../components/shop/products-card";
 import { SingleProductCard } from "../components/shop/single-product-card";
 import {
-  setCategories,
   setCategoryId,
   setCategoryName,
   setCartItems,
@@ -19,8 +18,6 @@ import { useEffect, useState } from "react";
 import React from "react";
 
 const Shop = ({
-  categories,
-  setCategories,
   categoryId,
   setCategoryId,
   categoryName,
@@ -50,16 +47,16 @@ const Shop = ({
   //
   //↘——————————————————————————————————————↙
   // fetch categories data
+  const [categoriesCall, setCategoriesCall] = useState({
+    categories: [],
+    loading: false,
+    error: "",
+    success: false,
+  });
   const [isSameCall, setIsSameCall] = useState(false);
-  const [categoryLength, setCategoryLength] = useState(null);
-  const categoriesUrl = "products/categories?per_page=100";
-  const getCategories = GetWooCategories(categoriesUrl);
-  useEffect(() => {
-    if (getCategories) {
-      setCategories(getCategories.slice(1));
-      categories.map((o) => o.id === categoryId && setCategoryLength(o.count));
-    }
-  }, [getCategories, categoryId]);
+  const { categories } = categoriesCall;
+  const categoriesUrl = "https://app.alepposhop.eu/api/categories";
+  GetWooCategories(categoriesUrl, setCategoriesCall);
   //
   // fetch categories data
   //↗—————————————————END——————————————————↖
@@ -77,11 +74,13 @@ const Shop = ({
   });
   const [pageNumber, setPageNumber] = useState(1);
   const { reset } = productsCall;
-  const productsUrl = `products?per_page=8&category=${categoryId}&page=${pageNumber}`;
-  const getProducts = GetWooProducts(
+  const productsUrl = `https://app.alepposhop.eu/api/products`;
+  GetWooProducts(
     productsUrl,
     productsCall,
-    setProductsCall
+    setProductsCall,
+    pageNumber,
+    categoryId
   );
   const [updatedProducts, setUpdatedProducts] = useState([]);
   useEffect(() => {
@@ -223,9 +222,7 @@ const Shop = ({
 };
 
 const mapStateToProps = (state) => ({
-  token: state.token,
   cartItems: state.cartItems,
-  categories: state.categories,
   categoryId: state.categoryId,
   updatedCart: state.updatedCart,
   categoryName: state.categoryName,
@@ -235,7 +232,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   setCartItems,
-  setCategories,
   setCategoryId,
   setCategoryName,
   setUpdatedCart,
