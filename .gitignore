@@ -1,6 +1,7 @@
 #_____________/frontend/______________
 # creds
 /frontend/src/credentials.js
+/frontend/src/secrets.js
 
 # dependencies
 /frontend/node_modules
