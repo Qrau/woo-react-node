@@ -43,7 +43,6 @@ const PostUserLogin = (url, userLoginCall, setUserLoginCall) => {
         ...userLoginCall,
         call: false,
         loading: false,
-        success: false,
         password: "",
       }));
     };

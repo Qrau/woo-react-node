@@ -9,8 +9,13 @@ import GetWooOrders from "../functions/get-woo-orders";
 import PostUserLogin from "../functions/post-user-login";
 import GetWooUserId from "../functions/get-woo-user-id";
 import UseLocalStorage from "../functions/use-local-storage";
-
+//
+//
+//
 const User = () => {
+  //
+  //
+  //
   //↘——————————————————————————————————————↙
   // user login call for token with JWT
   const [userLoginCall, setUserLoginCall] = useState({
@@ -24,23 +29,22 @@ const User = () => {
   });
   const tokenUrl = `${credentials.baseUrl}/wp-json/jwt-auth/v1/token`;
   PostUserLogin(tokenUrl, userLoginCall, setUserLoginCall);
+  const [storeUserLogin, setStoreUserLogin] = UseLocalStorage(
+    "userLoginCall",
+    JSON.stringify(userLoginCall)
+  );
+
+  useEffect(() => {
+    if (userLoginCall.success) {
+      setStoreUserLogin(JSON.stringify(userLoginCall));
+    }
+  }, [userLoginCall.success]);
   const HandleLogin = () => {
     setUserLoginCall((userLoginCall) => ({
       ...userLoginCall,
       call: true,
     }));
   };
-  const [storeUserLogin, setStoreUserLogin] = UseLocalStorage(
-    "userLoginCall",
-    ""
-  );
-  useEffect(() => {
-    if (userLoginCall.success) {
-      setStoreUserLogin(JSON.stringify(userLoginCall));
-      // JSON.parse(storeUserLogin).data;
-    }
-  }, [userLoginCall.success]);
-
   // user login call for token with JWT
   //↗—————————————————END——————————————————↖
   //
@@ -51,13 +55,15 @@ const User = () => {
   const [userIdCall, setUserIdCall] = useState({
     call: false,
     loading: false,
-    userId: "",
+    userId: 0,
     userLink: "",
     success: false,
   });
   const { userId } = userIdCall;
-  const { user_display_name, token } = userLoginCall.data;
   const userIdUrl = `${credentials.baseUrl}/wp-json/wp/v2/users/me`;
+  const { token, user_display_name } =
+    JSON.parse(storeUserLogin).data || userLoginCall.data;
+  const { success } = JSON.parse(storeUserLogin) || userLoginCall;
   GetWooUserId(userIdUrl, token, userIdCall, setUserIdCall);
   const getUserId = () => {
     setUserIdCall((userIdCall) => ({
@@ -66,10 +72,11 @@ const User = () => {
     }));
   };
   useEffect(() => {
-    if (token) {
+    if (success && token) {
       getUserId();
     }
-  }, [token]);
+  }, [success, token]);
+
   // user login call getting id
   //↗—————————————————END——————————————————↖
   //
@@ -84,7 +91,7 @@ const User = () => {
     success: false,
   });
   const { orders } = ordersCall;
-  const ordersUrl = "https://app.alepposhop.eu/api/orders";
+  const ordersUrl = `${credentials.apiUrl}/orders`;
   GetWooOrders(ordersUrl, userId, setOrdersCall);
   // get logged in user orders
   //↗—————————————————END——————————————————↖
@@ -92,9 +99,8 @@ const User = () => {
   //
   //
   //↘——————————————————————————————————————↙
-  // clear states and log user out
+  // clear states, local storage and log out
   const handleLogout = () => {
-    setStoreUserLogin("");
     setUserLoginCall({
       call: false,
       loading: false,
@@ -112,24 +118,30 @@ const User = () => {
       userLink: "",
       success: false,
     });
+    setStoreUserLogin(JSON.stringify(userLoginCall));
   };
-  // clear states and log user out
+  // clear states, local storage and log out
   //↗—————————————————END——————————————————↖
+  //
+  //
+  //
   return (
     <Container>
-      {token ? (
+      {success ? (
         <UserCard displayName={user_display_name} userOrders={orders} />
       ) : (
         <LoginForm setUserLoginCall={setUserLoginCall} />
       )}
       <LoginOutButton
-        onClick={() => (token ? handleLogout() : HandleLogin())}
-        isLoggedIn={token}
+        onClick={() => (success ? handleLogout() : HandleLogin())}
+        isLoggedIn={success}
       />
     </Container>
   );
 };
-
+//
+//
+//
 const mapStateToProps = (state) => ({});
 
 const mapDispatchToProps = {};

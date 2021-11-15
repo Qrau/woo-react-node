@@ -124,25 +124,29 @@ export const SingleProductCard = ({
           <TableKeys>:الأبعاد</TableKeys>
         </Attributes>
       </Table>
-      <Footer>
-        <Button
-          onClick={() => {
-            addToCart();
-          }}
-        >
-          +
-        </Button>
-        <P style={{ backgroundColor: "rgba(255,255,255, 0.6)" }}>
-          {singleProduct.orderqty ? singleProduct.orderqty : 0}
-        </P>
-        <Button
-          onClick={() => {
-            removeFromCart();
-          }}
-        >
-          -
-        </Button>
-      </Footer>
+      {singleProduct.stock_status !== "outofstock" ? (
+        <Footer>
+          <Button
+            onClick={() => {
+              addToCart();
+            }}
+          >
+            +
+          </Button>
+          <P style={{ backgroundColor: "rgba(255,255,255, 0.6)" }}>
+            {singleProduct.orderqty ? singleProduct.orderqty : 0}
+          </P>
+          <Button
+            onClick={() => {
+              removeFromCart();
+            }}
+          >
+            -
+          </Button>
+        </Footer>
+      ) : (
+        <H4 style={{ width: "100%" }}>out of stuck</H4>
+      )}
     </Wrapper>
   );
 };
