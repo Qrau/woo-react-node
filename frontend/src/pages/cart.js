@@ -51,7 +51,9 @@ const Cart = ({
   //↘——————————————————————————————————————↙
   // initiate objects for order holder
   const [storeUserLogin] = UseLocalStorage("userLoginCall");
-  const { user_display_name, user_email } = JSON.parse(storeUserLogin).data;
+  const user_display_name =
+    (storeUserLogin && JSON.parse(storeUserLogin).data) || "";
+  const user_email = (storeUserLogin && JSON.parse(storeUserLogin).data) || "";
   const [order_holder, set_order_holder] = useState({
     first_name: user_display_name || "",
     last_name: user_display_name || "",
@@ -80,29 +82,31 @@ const Cart = ({
   // rename order keys match woo api params
   const [order_items, set_order_items] = useState([]);
   const updatedOrder = () => {
-    const updated = updatedCart.map(({ count, id }) => ({ count, id }));
-    updated.map((o) => {
-      const count = "count";
-      const quantity = "quantity";
-      if (count !== quantity) {
-        Object.defineProperty(
-          o,
-          quantity,
-          Object.getOwnPropertyDescriptor(o, count)
-        );
-        delete o[count];
-      }
-      const id = "id";
-      const product_id = "product_id";
-      if (id !== product_id) {
-        Object.defineProperty(
-          o,
-          product_id,
-          Object.getOwnPropertyDescriptor(o, id)
-        );
-        delete o[id];
-      }
-    });
+    const updated =
+      updatedCart && updatedCart.map(({ count, id }) => ({ count, id }));
+    updatedCart &&
+      updated.map((o) => {
+        const count = "count";
+        const quantity = "quantity";
+        if (count !== quantity) {
+          Object.defineProperty(
+            o,
+            quantity,
+            Object.getOwnPropertyDescriptor(o, count)
+          );
+          delete o[count];
+        }
+        const id = "id";
+        const product_id = "product_id";
+        if (id !== product_id) {
+          Object.defineProperty(
+            o,
+            product_id,
+            Object.getOwnPropertyDescriptor(o, id)
+          );
+          delete o[id];
+        }
+      });
     return set_order_items(updated);
   };
   useEffect(() => {
